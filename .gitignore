@@ -8,7 +8,7 @@ coverage/
 
 # Production
 build/
-dist/
+frontend/dist/
 
 # Env files
 .env
