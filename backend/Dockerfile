@@ -2,14 +2,14 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copie des dépendances du backend
-COPY backend/package*.json ./
+# Copie des dépendances du backend (on est déjà dans /backend selon Back4App)
+COPY package*.json ./
 
 # Installation des paquets
 RUN npm install
 
-# Copie du reste du code source du backend
-COPY backend/ ./
+# Copie du reste du code source
+COPY . .
 
 # Build du backend (TypeScript -> JavaScript dans /dist)
 RUN npm run build
