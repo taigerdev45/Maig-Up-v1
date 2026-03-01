@@ -1,0 +1,235 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 210 30% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 30% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 30% 15%;
+
+    --primary: 209 89% 38%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 210 30% 15%;
+
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 44 95% 55%;
+    --accent-foreground: 210 30% 15%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 209 89% 38%;
+
+    --radius: 0.75rem;
+
+    /* Custom tokens based on Maig'Up Logo */
+    --hero-bg: 209 62% 10%;
+    --hero-bg-lighter: 209 55% 15%;
+    --hero-foreground: 0 0% 100%;
+    --hero-muted: 210 20% 75%;
+
+    --gold: 44 95% 55%;
+    --gold-foreground: 44 95% 15%;
+
+    --maigup-blue: 209 89% 38%;
+    --maigup-blue-light: 209 89% 48%;
+    --maigup-blue-dark: 209 89% 28%;
+
+    --green: 160 70% 42%;
+    --green-foreground: 0 0% 100%;
+
+    --stat-card-bg: 209 50% 15%;
+    --stat-card-border: 209 40% 20%;
+
+    --whatsapp: 142 70% 45%;
+    --whatsapp-foreground: 0 0% 100%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 209 62% 12%;
+    --foreground: 210 40% 98%;
+    --card: 209 50% 18%;
+    --card-foreground: 210 40% 98%;
+    --popover: 209 50% 18%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 199 89% 48%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 209 40% 22%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 209 40% 22%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 43 96% 56%;
+    --accent-foreground: 210 30% 15%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 209 40% 25%;
+    --input: 209 40% 25%;
+    --ring: 199 89% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+@layer components {
+  .hero-gradient {
+    background: linear-gradient(135deg, hsl(var(--hero-bg)) 0%, hsl(var(--hero-bg-lighter)) 50%, hsl(var(--hero-bg)) 100%);
+  }
+
+  .page-header-gradient {
+    background: linear-gradient(135deg, hsl(209 62% 12%) 0%, hsl(209 55% 22%) 50%, hsl(209 62% 15%) 100%);
+  }
+
+  .stat-card {
+    background: hsl(var(--stat-card-bg) / 0.8);
+    border: 1px solid hsl(var(--stat-card-border));
+    backdrop-filter: blur(10px);
+  }
+
+  .gold-gradient {
+    background: linear-gradient(135deg, hsl(var(--gold)) 0%, hsl(38 96% 48%) 100%);
+  }
+
+  .text-gradient-cyan {
+    background: linear-gradient(135deg, hsl(var(--cyan)) 0%, hsl(var(--cyan-light)) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .whatsapp-btn {
+    background: hsl(var(--whatsapp));
+    color: hsl(var(--whatsapp-foreground));
+  }
+
+  .whatsapp-btn:hover {
+    background: hsl(142 70% 38%);
+  }
+
+  .section-light {
+    background: hsl(var(--background));
+  }
+
+  .section-subtle {
+    background: hsl(210 20% 98%);
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Reveal animations */
+  .reveal {
+    opacity: 0;
+    transition: opacity 0.8s ease-out;
+  }
+
+  .reveal-up {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  }
+
+  .reveal-left {
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  }
+
+  .reveal-right {
+    opacity: 0;
+    transform: translateX(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  }
+
+  .reveal-visible {
+    opacity: 1 !important;
+    transform: translate(0, 0) !important;
+  }
+
+
+  /* Horizontal scroll for mobile only */
+  @media (max-width: 768px) {
+    .mobile-horizontal-scroll {
+      @apply flex overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .mobile-horizontal-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .mobile-horizontal-scroll>* {
+      @apply snap-start flex-shrink-0 w-[85%] mr-4 last:mr-0;
+    }
+  }
+
+  .back-to-top {
+    @apply fixed bottom-24 right-8 z-[60] bg-primary text-primary-foreground p-3 rounded-full shadow-lg transition-all hover:scale-110 active:scale-95 invisible opacity-0;
+  }
+
+  .back-to-top.visible {
+    visibility: visible;
+    @apply opacity-100;
+  }
+}
