@@ -37,10 +37,10 @@
     --radius: 0.75rem;
 
     /* Custom tokens based on Maig'Up Logo */
-    --hero-bg: 209 62% 10%;
-    --hero-bg-lighter: 209 55% 15%;
+    --hero-bg: 209 70% 14%;
+    --hero-bg-lighter: 209 65% 22%;
     --hero-foreground: 0 0% 100%;
-    --hero-muted: 210 20% 75%;
+    --hero-muted: 210 25% 78%;
 
     --gold: 44 95% 55%;
     --gold-foreground: 44 95% 15%;
@@ -52,8 +52,8 @@
     --green: 160 70% 42%;
     --green-foreground: 0 0% 100%;
 
-    --stat-card-bg: 209 50% 15%;
-    --stat-card-border: 209 40% 20%;
+    --stat-card-bg: 209 55% 20%;
+    --stat-card-border: 209 45% 28%;
 
     --whatsapp: 142 70% 45%;
     --whatsapp-foreground: 0 0% 100%;
@@ -104,11 +104,56 @@
 
 @layer components {
   .hero-gradient {
-    background: linear-gradient(135deg, hsl(var(--hero-bg)) 0%, hsl(var(--hero-bg-lighter)) 50%, hsl(var(--hero-bg)) 100%);
+    background:
+      radial-gradient(ellipse 90% 70% at 15% 85%, hsl(199 90% 45% / 0.35) 0%, transparent 60%),
+      radial-gradient(ellipse 70% 60% at 85% 15%, hsl(220 85% 50% / 0.3) 0%, transparent 55%),
+      radial-gradient(circle at 50% 50%, hsl(209 80% 30% / 0.2) 0%, transparent 50%),
+      linear-gradient(155deg, hsl(220 75% 8%) 0%, hsl(209 70% 18%) 30%, hsl(199 75% 30%) 55%, hsl(215 70% 20%) 80%, hsl(220 75% 10%) 100%);
   }
 
   .page-header-gradient {
-    background: linear-gradient(135deg, hsl(209 62% 12%) 0%, hsl(209 55% 22%) 50%, hsl(209 62% 15%) 100%);
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 75%, hsl(199 90% 45% / 0.3) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 25%, hsl(220 85% 50% / 0.2) 0%, transparent 55%),
+      linear-gradient(155deg, hsl(220 75% 8%) 0%, hsl(209 70% 18%) 40%, hsl(199 75% 28%) 70%, hsl(220 75% 10%) 100%);
+  }
+
+  .admin-gradient {
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 90%, hsl(209 80% 35% / 0.25) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 90% 10%, hsl(220 75% 40% / 0.2) 0%, transparent 55%),
+      linear-gradient(165deg, hsl(220 60% 8%) 0%, hsl(215 55% 14%) 40%, hsl(209 50% 18%) 70%, hsl(220 60% 10%) 100%);
+  }
+
+  /* Hover spotlight effect on gradient sections */
+  .gradient-hover-fx {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .gradient-hover-fx::before {
+    content: '';
+    position: absolute;
+    top: var(--mouse-y, 50%);
+    left: var(--mouse-x, 50%);
+    width: 600px;
+    height: 600px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, hsl(199 90% 55% / 0.12) 0%, transparent 70%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: 1;
+  }
+
+  .gradient-hover-fx:hover::before {
+    opacity: 1;
+  }
+
+  .gradient-hover-fx > * {
+    position: relative;
+    z-index: 2;
   }
 
   .stat-card {

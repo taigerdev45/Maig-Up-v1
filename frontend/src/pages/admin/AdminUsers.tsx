@@ -1,50 +1,65 @@
 import { useState } from "react";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow
+    Table, TableBody, TableCell, TableHead, TableHeader, TableRow
 } from "@/components/ui/table";
 import {
-    Plus,
-    Search,
-    MoreHorizontal,
-    Edit2,
-    Trash2,
-    Shield,
-    UserCheck,
-    Mail,
-    Lock
+    Plus, Search, MoreHorizontal, Edit2, Trash2, Shield, Lock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger
+    DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getUsers, deleteUser, updateUserRole } from "@/services/api";
+import { useToast } from "@/hooks/use-toast";
+import type { User } from "@/types";
 
-const initialUsers = [
-    { id: 1, name: "Admin Principal", email: "admin@maigup.com", role: "Super Admin", lastLogin: "Il y a 1 heure" },
-    { id: 2, name: "Consultant 1", email: "consultant@maigup.com", role: "Éditeur", lastLogin: "Hier" },
-    { id: 3, name: "Support Client", email: "support@maigup.com", role: "Lecteur", lastLogin: "3 jours" },
-];
+const roleLabels: Record<string, string> = {
+    ADMIN: "Super Admin",
+    EDITOR: "Éditeur",
+    READER: "Lecteur",
+};
 
 const AdminUsers = () => {
-    const [users] = useState(initialUsers);
     const [searchTerm, setSearchTerm] = useState("");
+    const { toast } = useToast();
+    const queryClient = useQueryClient();
 
-    const filtered = users.filter(u =>
+    const { data: users = [], isLoading } = useQuery({
+        queryKey: ['admin-users'],
+        queryFn: getUsers,
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: deleteUser,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+            toast({ title: "Utilisateur supprimé" });
+        },
+        onError: () => {
+            toast({ variant: "destructive", title: "Erreur", description: "Impossible de supprimer l'utilisateur." });
+        },
+    });
+
+    const roleMutation = useMutation({
+        mutationFn: ({ id, role }: { id: string; role: User['role'] }) => updateUserRole(id, role),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+            toast({ title: "Rôle mis à jour" });
+        },
+    });
+
+    const filtered = users.filter((u: User) =>
         u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         u.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    if (isLoading) {
+        return <div className="p-8 text-center text-muted-foreground animate-pulse">Chargement...</div>;
+    }
 
     return (
         <div className="space-y-6 reveal-up reveal-visible">
@@ -53,15 +68,11 @@ const AdminUsers = () => {
                     <h2 className="text-2xl font-bold tracking-tight text-foreground">Utilisateurs & Accès</h2>
                     <p className="text-muted-foreground">Gérez les membres de l'équipe et leurs niveaux de permissions.</p>
                 </div>
-                <Button className="bg-primary hover:bg-cyan-dark text-primary-foreground gap-2">
-                    <Plus className="w-4 h-4" />
-                    Nouvel utilisateur
-                </Button>
             </div>
 
             <Card className="border-border/50 shadow-sm">
                 <CardHeader className="pb-3">
-                    <CardTitle>Membres de l'équipe</CardTitle>
+                    <CardTitle>Membres de l'équipe ({users.length})</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="flex items-center gap-4 mb-6">
@@ -83,12 +94,18 @@ const AdminUsers = () => {
                                     <TableHead>Utilisateur</TableHead>
                                     <TableHead>Email</TableHead>
                                     <TableHead>Rôle</TableHead>
-                                    <TableHead>Dernière connexion</TableHead>
                                     <TableHead className="text-right">Action</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filtered.map((u) => (
+                                {filtered.length === 0 && (
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                                            Aucun utilisateur trouvé
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                                {filtered.map((u: User) => (
                                     <TableRow key={u.id} className="hover:bg-secondary/20 transition-colors">
                                         <TableCell>
                                             <div className="flex items-center gap-3">
@@ -100,12 +117,11 @@ const AdminUsers = () => {
                                         </TableCell>
                                         <TableCell className="text-muted-foreground">{u.email}</TableCell>
                                         <TableCell>
-                                            <Badge variant="outline" className={`gap-1 border-primary/20 text-primary bg-primary/5`}>
+                                            <Badge variant="outline" className="gap-1 border-primary/20 text-primary bg-primary/5">
                                                 <Shield className="w-3 h-3" />
-                                                {u.role}
+                                                {roleLabels[u.role] || u.role}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="text-xs text-muted-foreground">{u.lastLogin}</TableCell>
                                         <TableCell className="text-right">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
@@ -115,15 +131,18 @@ const AdminUsers = () => {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Options</DropdownMenuLabel>
-                                                    <DropdownMenuItem className="gap-2">
-                                                        <Edit2 className="w-4 h-4 font-bold" /> Modifier
+                                                    <DropdownMenuItem className="gap-2" onClick={() => roleMutation.mutate({ id: u.id, role: 'ADMIN' })}>
+                                                        <Shield className="w-4 h-4" /> Passer Admin
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem className="gap-2">
-                                                        <Lock className="w-4 h-4" /> Réinitialiser MP
+                                                    <DropdownMenuItem className="gap-2" onClick={() => roleMutation.mutate({ id: u.id, role: 'EDITOR' })}>
+                                                        <Edit2 className="w-4 h-4" /> Passer Éditeur
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem className="gap-2" onClick={() => roleMutation.mutate({ id: u.id, role: 'READER' })}>
+                                                        <Lock className="w-4 h-4" /> Passer Lecteur
                                                     </DropdownMenuItem>
                                                     <DropdownMenuSeparator />
-                                                    <DropdownMenuItem className="gap-2 text-destructive">
-                                                        <Trash2 className="w-4 h-4" /> Désactiver
+                                                    <DropdownMenuItem className="gap-2 text-destructive" onClick={() => deleteMutation.mutate(u.id)}>
+                                                        <Trash2 className="w-4 h-4" /> Supprimer
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>

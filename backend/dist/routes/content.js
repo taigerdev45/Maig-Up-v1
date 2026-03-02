@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const firebase_admin_1 = require("../config/firebase-admin");
 const auth_1 = require("../middleware/auth");
+const validate_1 = require("../middleware/validate");
+const validators_1 = require("../lib/validators");
 const router = (0, express_1.Router)();
 // Public: Get all content components
 router.get('/', async (req, res) => {
@@ -19,8 +21,15 @@ router.get('/', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch content' });
     }
 });
-// Admin: Update content component
-router.put('/:id', auth_1.checkAdmin, async (req, res) => {
+// Admin: Update content component (with optional validation)
+router.put('/:id', auth_1.checkAdmin, (req, res, next) => {
+    const { id } = req.params;
+    const schema = validators_1.contentSchemaMap[id];
+    if (schema) {
+        return (0, validate_1.validate)(schema)(req, res, next);
+    }
+    next();
+}, async (req, res) => {
     const { id } = req.params;
     const newData = req.body;
     try {

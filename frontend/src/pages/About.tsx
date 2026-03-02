@@ -3,6 +3,8 @@ import PageHeader from "@/components/PageHeader";
 import { CheckCircle2, Globe, Heart, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useGradientHover } from "@/hooks/useGradientHover";
+import { useSEO } from "@/hooks/useSEO";
 
 const values = [
   { icon: Heart, title: "Bienveillance", description: "Nous accompagnons chaque étudiant avec empathie et compréhension." },
@@ -19,6 +21,8 @@ const timeline = [
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const About = () => {
+  useSEO({ title: "À propos", description: "Découvrez Maig'Up France, notre mission, nos valeurs et notre engagement pour accompagner les étudiants africains vers la réussite en France." });
+  const glow = useGradientHover();
   useScrollReveal();
   return (
     <Layout>
@@ -117,7 +121,7 @@ const About = () => {
       </section>
 
       {/* CTA */}
-      <section className="hero-gradient py-20">
+      <section className={`hero-gradient py-20 ${glow.className}`} onMouseMove={glow.onMouseMove}>
         <div className="container mx-auto px-4 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-hero-foreground mb-4">Prêt à réaliser votre rêve ?</h2>
           <p className="text-hero-muted mb-8 max-w-xl mx-auto">

@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { useGradientHover } from "@/hooks/useGradientHover";
 
 interface PageHeaderProps {
   badge: string;
@@ -9,9 +10,13 @@ interface PageHeaderProps {
 }
 
 const PageHeader = ({ badge, title, highlight, description, icon }: PageHeaderProps) => {
+  const glow = useGradientHover();
+
   return (
-    <section className="page-header-gradient pt-32 pb-20 relative overflow-hidden">
-      {/* Background overlay pattern */}
+    <section
+      className={`page-header-gradient pt-32 pb-20 relative overflow-hidden ${glow.className}`}
+      onMouseMove={glow.onMouseMove}
+    >
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{
           backgroundImage: "url('https://images.unsplash.com/photo-1523050854058-8df90110c476?w=1200&q=30')",
@@ -19,7 +24,7 @@ const PageHeader = ({ badge, title, highlight, description, icon }: PageHeaderPr
           backgroundPosition: "center",
         }} />
       </div>
-      
+
       <div className="container mx-auto px-4 lg:px-8 relative z-10 text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-hero-lighter/50 border border-hero-lighter text-hero-muted text-sm mb-6">
           {icon}

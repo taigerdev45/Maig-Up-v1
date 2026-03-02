@@ -1,47 +1,50 @@
 import { useState } from "react";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow
+    Table, TableBody, TableCell, TableHead, TableHeader, TableRow
 } from "@/components/ui/table";
 import {
-    Plus,
-    Search,
-    MoreHorizontal,
-    Edit2,
-    Trash2,
-    Globe,
-    GraduationCap,
-    FileText,
-    Eye
+    Search, MoreHorizontal, Edit2, Trash2, Globe, Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger
+    DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-const initialRegistrations = [
-    { id: "REG-001", name: "Jean Soro", country: "Côte d'Ivoire", program: "Master Informatique", status: "En attente", date: "2024-03-24" },
-    { id: "REG-002", name: "Moussa Laye", country: "Sénégal", program: "Licence Économie", status: "Validé", date: "2024-03-23" },
-    { id: "REG-003", name: "Aminata Koné", country: "Mali", program: "Master Droit", status: "En cours", date: "2024-03-22" },
-    { id: "REG-004", name: "Thomas Dubois", country: "Cameroun", program: "Prépa Ingénieur", status: "Incomplet", date: "2024-03-21" },
-    { id: "REG-005", name: "Fatou Diop", country: "Sénégal", program: "Master Marketing", status: "En attente", date: "2024-03-20" },
-];
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getRegistrations, updateRegistrationStatus, deleteRegistration } from "@/services/api";
+import { useToast } from "@/hooks/use-toast";
+import type { Registration } from "@/types";
 
 const AdminRegistrations = () => {
-    const [registrations] = useState(initialRegistrations);
     const [searchTerm, setSearchTerm] = useState("");
+    const { toast } = useToast();
+    const queryClient = useQueryClient();
+
+    const { data: result, isLoading } = useQuery({
+        queryKey: ['admin-registrations'],
+        queryFn: () => getRegistrations(),
+    });
+
+    const registrations: Registration[] = result?.data || [];
+
+    const statusMutation = useMutation({
+        mutationFn: ({ id, status }: { id: string; status: Registration['status'] }) =>
+            updateRegistrationStatus(id, status),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['admin-registrations'] });
+            toast({ title: "Statut mis à jour" });
+        },
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: deleteRegistration,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['admin-registrations'] });
+            toast({ title: "Demande supprimée" });
+        },
+    });
 
     const filtered = registrations.filter(r =>
         r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -59,6 +62,10 @@ const AdminRegistrations = () => {
         }
     };
 
+    if (isLoading) {
+        return <div className="p-8 text-center text-muted-foreground animate-pulse">Chargement...</div>;
+    }
+
     return (
         <div className="space-y-6 reveal-up reveal-visible">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -70,7 +77,7 @@ const AdminRegistrations = () => {
 
             <Card>
                 <CardHeader className="pb-3">
-                    <CardTitle>Liste des demandes</CardTitle>
+                    <CardTitle>Liste des demandes ({registrations.length})</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="flex items-center gap-4 mb-6">
@@ -93,8 +100,8 @@ const AdminRegistrations = () => {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>ID</TableHead>
                                     <TableHead>Étudiant</TableHead>
+                                    <TableHead>Email</TableHead>
                                     <TableHead>Pays</TableHead>
                                     <TableHead>Programme visé</TableHead>
                                     <TableHead>Date</TableHead>
@@ -103,13 +110,20 @@ const AdminRegistrations = () => {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
+                                {filtered.length === 0 && (
+                                    <TableRow>
+                                        <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                                            Aucune demande trouvée
+                                        </TableCell>
+                                    </TableRow>
+                                )}
                                 {filtered.map((reg) => (
                                     <TableRow key={reg.id}>
-                                        <TableCell className="font-mono text-xs text-muted-foreground">{reg.id}</TableCell>
                                         <TableCell className="font-medium">{reg.name}</TableCell>
+                                        <TableCell className="text-muted-foreground">{reg.email}</TableCell>
                                         <TableCell>{reg.country}</TableCell>
                                         <TableCell>{reg.program}</TableCell>
-                                        <TableCell>{reg.date}</TableCell>
+                                        <TableCell>{new Date(reg.createdAt).toLocaleDateString('fr-FR')}</TableCell>
                                         <TableCell>
                                             <Badge variant="secondary" className={getStatusColor(reg.status)}>
                                                 {reg.status}
@@ -124,14 +138,17 @@ const AdminRegistrations = () => {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuItem className="gap-2">
-                                                        <Eye className="w-4 h-4" /> Voir le dossier
+                                                    <DropdownMenuItem className="gap-2" onClick={() => statusMutation.mutate({ id: reg.id, status: 'En cours' })}>
+                                                        <Edit2 className="w-4 h-4" /> En cours
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem className="gap-2">
-                                                        <Edit2 className="w-4 h-4" /> Modifier
+                                                    <DropdownMenuItem className="gap-2" onClick={() => statusMutation.mutate({ id: reg.id, status: 'Validé' })}>
+                                                        <Eye className="w-4 h-4" /> Valider
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem className="gap-2" onClick={() => statusMutation.mutate({ id: reg.id, status: 'Incomplet' })}>
+                                                        <Edit2 className="w-4 h-4" /> Incomplet
                                                     </DropdownMenuItem>
                                                     <DropdownMenuSeparator />
-                                                    <DropdownMenuItem className="gap-2 text-destructive">
+                                                    <DropdownMenuItem className="gap-2 text-destructive" onClick={() => deleteMutation.mutate(reg.id)}>
                                                         <Trash2 className="w-4 h-4" /> Supprimer
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>

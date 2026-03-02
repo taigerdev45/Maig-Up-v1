@@ -6,11 +6,12 @@ import {
     Settings,
     FileText,
     LogOut,
-    ChevronRight,
     Menu,
     X,
     Bell,
-    UserPlus
+    UserPlus,
+    Home,
+    ExternalLink
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -45,14 +46,13 @@ const AdminLayout = () => {
         { icon: FileText, label: "Services", path: "/admin/services" },
         { icon: Users, label: "Témoignages", path: "/admin/testimonials" },
         { icon: Settings, label: "Paramètres", path: "/admin/settings" },
-        { icon: Users, label: "Utilisateurs", path: "/admin/users" },
     ];
 
     return (
-        <div className="min-h-screen bg-secondary/30 flex overflow-hidden">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 flex overflow-hidden">
             {/* Sidebar */}
             <aside
-                className={`bg-[#1A1F2C] border-r border-white/10 transition-all duration-300 z-50 ${isSidebarOpen ? "w-64" : "w-20"
+                className={`admin-gradient border-r border-white/10 transition-all duration-300 z-50 ${isSidebarOpen ? "w-64" : "w-20"
                     } fixed top-0 left-0 h-screen flex flex-col`}
             >
                 <div className="p-6 flex items-center justify-between shrink-0">
@@ -91,7 +91,20 @@ const AdminLayout = () => {
                     ))}
                 </nav>
 
-                <div className="p-4 border-t border-white/5 shrink-0">
+                <div className="p-4 border-t border-white/5 shrink-0 space-y-2">
+                    <a href="/" target="_blank" rel="noopener noreferrer">
+                        <Button
+                            variant="ghost"
+                            className={`w-full flex items-center gap-3 px-3 py-3 text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300 ${!isSidebarOpen && "justify-center"
+                                }`}
+                        >
+                            <Home className="w-5 h-5 flex-shrink-0" />
+                            <span className={`font-medium ${!isSidebarOpen && "hidden"}`}>
+                                Voir le site
+                            </span>
+                            <ExternalLink className={`w-3 h-3 ml-auto ${!isSidebarOpen && "hidden"}`} />
+                        </Button>
+                    </a>
                     <Button
                         variant="ghost"
                         className={`w-full flex items-center gap-3 px-3 py-3 text-red-400 hover:bg-red-500/10 hover:text-red-300 ${!isSidebarOpen && "justify-center"

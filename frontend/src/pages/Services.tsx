@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/services/api";
+import { iconMap } from "@/lib/icons";
+import { useGradientHover } from "@/hooks/useGradientHover";
+import { useSEO } from "@/hooks/useSEO";
 
 const defaultServicesData = [
   {
@@ -52,14 +55,12 @@ const defaultServicesData = [
   },
 ];
 
-const iconMap: Record<string, React.ElementType> = {
-  FileText, ClipboardList, GraduationCap, MessageSquare, Target, Briefcase
-};
-
 const colors = ["bg-primary", "bg-green", "bg-gold", "bg-destructive"];
 
 const Services = () => {
+  useSEO({ title: "Nos Services", description: "Découvrez nos services d'accompagnement Campus France : création de compte, constitution du dossier, choix d'universités, lettres de motivation, simulation d'entretien." });
   useScrollReveal();
+  const glow = useGradientHover();
 
   const { data: remoteContent } = useQuery({
     queryKey: ['public-content'],
@@ -117,7 +118,7 @@ const Services = () => {
       </section>
 
       {/* CTA */}
-      <section className="hero-gradient py-20 reveal">
+      <section className={`hero-gradient py-20 reveal ${glow.className}`} onMouseMove={glow.onMouseMove}>
         <div className="container mx-auto px-4 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-hero-foreground mb-4">Prêt à démarrer votre projet ?</h2>
           <p className="text-hero-muted mb-8 max-w-xl mx-auto">

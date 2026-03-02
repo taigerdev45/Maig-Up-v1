@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import api from "@/services/api";
-import { useToast } from "@/hooks/use-toast";
+import { useContentMutation } from "@/hooks/useContentMutation";
 import {
     Card,
     CardContent,
@@ -16,9 +16,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { LayoutDashboard, Plus, Trash2 } from "lucide-react";
 
 const AdminAccueil = () => {
-    const { toast } = useToast();
-    const queryClient = useQueryClient();
-
     const { data: contentData, isLoading } = useQuery({
         queryKey: ['content'],
         queryFn: async () => {
@@ -48,25 +45,7 @@ const AdminAccueil = () => {
         }
     }, [contentData, resetHero, resetStats, resetWhyUs]);
 
-    const mutation = useMutation({
-        mutationFn: async ({ section, data }: { section: string, data: any }) => {
-            await api.put(`/content/${section}`, data);
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['content'] });
-            toast({
-                title: "Section mise à jour",
-                description: "Les modifications ont été enregistrées.",
-            });
-        },
-        onError: () => {
-            toast({
-                variant: "destructive",
-                title: "Erreur",
-                description: "Impossible d'enregistrer les modifications.",
-            });
-        }
-    });
+    const mutation = useContentMutation();
 
     if (isLoading) {
         return <div className="p-8 text-center text-muted-foreground animate-pulse">Chargement...</div>;

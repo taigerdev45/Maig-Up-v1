@@ -16,10 +16,15 @@ import AdminRegistrations from "./pages/admin/AdminRegistrations";
 import AdminServices from "./pages/admin/AdminServices";
 import AdminTestimonials from "./pages/admin/AdminTestimonials";
 import AdminSettings from "./pages/admin/AdminSettings";
-import AdminUsers from "./pages/admin/AdminUsers";
 import AdminAccueil from "./pages/admin/AdminAccueil";
+import { usePageVisit } from "./hooks/usePageVisit";
 
 const queryClient = new QueryClient();
+
+function PageVisitTracker({ children }: { children: React.ReactNode }) {
+  usePageVisit();
+  return <>{children}</>;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -27,6 +32,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <PageVisitTracker>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/a-propos" element={<About />} />
@@ -45,11 +51,11 @@ const App = () => (
             <Route path="services" element={<AdminServices />} />
             <Route path="testimonials" element={<AdminTestimonials />} />
             <Route path="settings" element={<AdminSettings />} />
-            <Route path="users" element={<AdminUsers />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </PageVisitTracker>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

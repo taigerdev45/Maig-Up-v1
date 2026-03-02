@@ -7,13 +7,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useSEO } from "@/hooks/useSEO";
 import { useQuery } from "@tanstack/react-query";
-import api from "@/services/api";
+import api, { submitContact } from "@/services/api";
 
 const countries = ["Sénégal", "Côte d'Ivoire", "Mali", "Guinée", "Burkina Faso", "Cameroun", "Gabon", "Congo", "Togo", "Bénin", "Niger", "Mauritanie", "Autre"];
 const staticServicesList = ["Dossier Campus France", "Lettres de motivation", "Simulation d'entretien", "Pack complet", "Autre demande"];
 
 const Contact = () => {
+  useSEO({ title: "Contact", description: "Contactez Maig'Up France pour un accompagnement personnalisé Campus France. Formulaire, WhatsApp et informations de contact." });
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     firstName: "", lastName: "", email: "", phone: "", country: "", service: "", message: "",
@@ -34,10 +36,20 @@ const Contact = () => {
 
   const whatsappUrl = `https://wa.me/${(settings?.phone || "33123456789").replace(/\D/g,'')}?text=${encodeURIComponent(settings?.whatsappMessage || "Bonjour, je souhaite des informations sur vos services.")}`;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({ title: "Message envoyé !", description: "Nous vous répondrons dans les 24h." });
-    setFormData({ firstName: "", lastName: "", email: "", phone: "", country: "", service: "", message: "" });
+    setIsSubmitting(true);
+    try {
+      await submitContact(formData);
+      toast({ title: "Message envoyé !", description: "Nous vous répondrons dans les 24h." });
+      setFormData({ firstName: "", lastName: "", email: "", phone: "", country: "", service: "", message: "" });
+    } catch {
+      toast({ variant: "destructive", title: "Erreur", description: "Impossible d'envoyer le message. Réessayez." });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -185,8 +197,8 @@ const Contact = () => {
                     />
                   </div>
 
-                  <Button type="submit" size="lg" className="w-full bg-primary hover:bg-cyan-dark text-primary-foreground font-semibold rounded-full gap-2">
-                    <Send className="w-4 h-4" /> Envoyer le message
+                  <Button type="submit" size="lg" disabled={isSubmitting} className="w-full bg-primary hover:bg-cyan-dark text-primary-foreground font-semibold rounded-full gap-2">
+                    <Send className="w-4 h-4" /> {isSubmitting ? "Envoi en cours..." : "Envoyer le message"}
                   </Button>
                 </form>
               </div>

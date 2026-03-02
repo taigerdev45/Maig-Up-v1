@@ -1,18 +1,19 @@
 import Layout from "@/components/Layout";
 import { Link } from "react-router-dom";
-import { ArrowRight, ArrowUp, CheckCircle2, Users, Award, Star, FileText, GraduationCap, MessageSquare, Target, Clock, Heart, Shield, Zap, Headphones } from "lucide-react";
+import { ArrowRight, ArrowUp, CheckCircle2, Star, FileText, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/services/api";
-
-const iconMap: Record<string, React.ElementType> = {
-  FileText, GraduationCap, MessageSquare, Target, Users, Award, Star, Clock, Heart, Shield, Zap, Headphones
-};
+import { iconMap } from "@/lib/icons";
+import { useGradientHover } from "@/hooks/useGradientHover";
+import { useSEO } from "@/hooks/useSEO";
 
 const Index = () => {
+  useSEO({ title: "Accueil", description: "Maig'Up France accompagne les étudiants africains dans leur projet d'études en France : Campus France, universités, lettres de motivation et visa." });
   useScrollReveal();
+  const glow = useGradientHover();
   const [showBackToTop, setShowBackToTop] = useState(false);
 
   const { data: remoteContent, isLoading } = useQuery({
@@ -59,16 +60,15 @@ const Index = () => {
   const servicesData = services?.items || [];
   const testimonialsData = testimonials?.items || [];
   const whyUsData = whyUs?.items || [];
-  
-  const whatsappUrl = `https://wa.me/${(settings?.phone || "33123456789").replace(/\D/g,'')}?text=${encodeURIComponent(settings?.whatsappMessage || "Bonjour, je souhaite des informations sur vos services.")}`;
+
+  const whatsappUrl = `https://wa.me/${(settings?.phone || "33123456789").replace(/\D/g, '')}?text=${encodeURIComponent(settings?.whatsappMessage || "Bonjour, je souhaite des informations sur vos services.")}`;
 
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="hero-gradient pt-32 pb-20 lg:pb-28 relative overflow-hidden">
+      <section className={`hero-gradient pt-32 pb-20 lg:pb-28 relative overflow-hidden ${glow.className}`} onMouseMove={glow.onMouseMove}>
         <div className="container mx-auto px-4 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left Column */}
             <div className="animate-fade-in">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-hero-lighter/50 border border-hero-lighter text-hero-muted text-sm mb-6">
                 <span className="w-2 h-2 rounded-full bg-primary" />
@@ -80,7 +80,7 @@ const Index = () => {
                 <br />
                 <span className="text-primary">{heroData.titleLine2}</span>
                 <br />
-                {heroData.titleLine3.split(' ').map((word: string, i: number, arr: string[]) => 
+                {heroData.titleLine3.split(' ').map((word: string, i: number, arr: string[]) =>
                   i === arr.length - 1 ? <span key={i} className="text-gold"> {word}</span> : word + " "
                 )}
               </h1>
@@ -112,7 +112,6 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Right Column - Stats Cards */}
             <div className="space-y-4 animate-slide-up">
               {statsData.map((stat: { icon?: string | React.ElementType; value: string | number; label: string }) => {
                 const Icon = typeof stat.icon === 'string' ? iconMap[stat.icon] || Star : stat.icon;
@@ -129,8 +128,7 @@ const Index = () => {
                 );
               })}
 
-              {/* Join us badge */}
-              <div className="gold-gradient rounded-full px-6 py-3 inline-flex items-center gap-3 mt-4">
+              <Link to="/contact" className="gold-gradient rounded-full px-6 py-3 inline-flex items-center gap-3 mt-4 hover:opacity-90 transition-opacity">
                 <div className="flex -space-x-2">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="w-8 h-8 rounded-full bg-gold-foreground/20 border-2 border-gold" />
@@ -140,56 +138,18 @@ const Index = () => {
                   <p className="font-bold text-gold-foreground text-sm">Rejoignez-nous</p>
                   <p className="text-xs text-gold-foreground/70">+50 ce mois</p>
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Services Section */}
+      {/* Services Carousel - Manual scroll */}
       {servicesData.length > 0 && (
-        <section className="section-light py-20 reveal-up">
-          <div className="container mx-auto px-4 lg:px-8">
-            <div className="text-center mb-12">
-              <p className="text-primary font-semibold mb-2">Nos services</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                Un accompagnement sur mesure
-              </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                De la création de votre compte Campus France jusqu'à l'obtention de votre visa, nous vous guidons à chaque étape.
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 mobile-horizontal-scroll">
-              {servicesData.map((service: { icon?: string | React.ElementType; title: string; description: string }) => {
-                const Icon = typeof service.icon === 'string' ? iconMap[service.icon] || FileText : service.icon;
-                return (
-                  <div
-                    key={service.title}
-                    className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-shadow group"
-                  >
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                      {Icon && <Icon className="w-6 h-6 text-primary" />}
-                    </div>
-                    <h3 className="font-bold text-foreground mb-2">{service.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{service.description}</p>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="text-center">
-              <Link to="/services">
-                <Button variant="outline" className="rounded-full font-semibold px-8">
-                  Découvrir tous nos services
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </section>
+        <ServicesCarousel servicesData={servicesData} />
       )}
 
-      {/* Image + Stats Banner */}
+      {/* Why Choose Us */}
       {whyUsData.length > 0 && (
         <section className="section-subtle py-20 reveal">
           <div className="container mx-auto px-4 lg:px-8">
@@ -236,54 +196,16 @@ const Index = () => {
         </section>
       )}
 
-      {/* Testimonials Section */}
+      {/* Testimonials Auto-Carousel - Last 5 */}
       {testimonialsData.length > 0 && (
-        <section className="section-light py-20 reveal-up">
-          <div className="container mx-auto px-4 lg:px-8">
-            <div className="text-center mb-12">
-              <p className="text-primary font-semibold mb-2">Témoignages</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                Ils ont réussi avec {settings?.siteName || "Maig'Up France"}
-              </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Découvrez les retours de nos étudiants qui ont concrétisé leur rêve d'étudier en France.
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6 mb-10 mobile-horizontal-scroll">
-              {testimonialsData.slice(0, 3).map((t: { name: string; quote: string; avatar?: string; origin?: string }) => (
-                <div key={t.name} className="bg-card border border-border rounded-xl p-6">
-                  <div className="text-gold text-3xl font-serif mb-3">"</div>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-6">{t.quote}</p>
-                  <div className="flex items-center gap-2 text-gold mb-4">
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <Star key={s} className="w-4 h-4 fill-current" />
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <img src={t.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}`} alt={t.name} className="w-10 h-10 rounded-full object-cover" />
-                    <div>
-                      <p className="font-semibold text-foreground text-sm">{t.name}</p>
-                      <p className="text-xs text-muted-foreground">{t.origin}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="text-center">
-              <Link to="/temoignages">
-                <Button variant="outline" className="rounded-full font-semibold px-8">
-                  Voir tous les témoignages
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </section>
+        <TestimonialsCarousel
+          testimonialsData={testimonialsData.slice(-5)}
+          siteName={settings?.siteName}
+        />
       )}
 
       {/* CTA Section */}
-      <section className="hero-gradient py-20 reveal">
+      <section className={`hero-gradient py-20 reveal ${glow.className}`} onMouseMove={glow.onMouseMove}>
         <div className="container mx-auto px-4 lg:px-8 text-center">
           <p className="text-primary font-semibold mb-2">Prêt à démarrer ?</p>
           <h2 className="text-3xl md:text-4xl font-bold text-hero-foreground mb-4">
@@ -311,7 +233,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Back to Top Button */}
       <button
         onClick={scrollToTop}
         className={`back-to-top ${showBackToTop ? "visible" : ""}`}
@@ -322,5 +243,195 @@ const Index = () => {
     </Layout>
   );
 };
+
+// ============ Services Carousel (manual) ============
+
+function ServicesCarousel({ servicesData }: { servicesData: any[] }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (!scrollRef.current) return;
+    const cardWidth = scrollRef.current.querySelector<HTMLElement>(':scope > div')?.offsetWidth || 320;
+    const gap = 24;
+    scrollRef.current.scrollBy({
+      left: direction === 'left' ? -(cardWidth + gap) : (cardWidth + gap),
+      behavior: 'smooth',
+    });
+  };
+
+  return (
+    <section className="section-light py-20 reveal-up">
+      <div className="container mx-auto px-4 lg:px-8">
+        <div className="flex items-end justify-between mb-12">
+          <div>
+            <p className="text-primary font-semibold mb-2">Nos services</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Un accompagnement sur mesure
+            </h2>
+            <p className="text-muted-foreground max-w-2xl">
+              De la création de votre compte Campus France jusqu'à l'obtention de votre visa, nous vous guidons à chaque étape.
+            </p>
+          </div>
+          <div className="hidden md:flex items-center gap-2">
+            <Button variant="outline" size="icon" className="rounded-full" onClick={() => scroll('left')}>
+              <ChevronLeft className="w-5 h-5" />
+            </Button>
+            <Button variant="outline" size="icon" className="rounded-full" onClick={() => scroll('right')}>
+              <ChevronRight className="w-5 h-5" />
+            </Button>
+          </div>
+        </div>
+
+        <div
+          ref={scrollRef}
+          className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {servicesData.map((service: { icon?: string | React.ElementType; title: string; description: string }) => {
+            const Icon = typeof service.icon === 'string' ? iconMap[service.icon] || FileText : service.icon;
+            return (
+              <div
+                key={service.title}
+                className="min-w-[280px] md:min-w-[320px] snap-start bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-shadow group flex-shrink-0"
+              >
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  {Icon && <Icon className="w-6 h-6 text-primary" />}
+                </div>
+                <h3 className="font-bold text-foreground mb-2">{service.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{service.description}</p>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="text-center mt-10">
+          <Link to="/services">
+            <Button variant="outline" className="rounded-full font-semibold px-8">
+              Découvrir tous nos services
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ============ Testimonials Auto-Carousel ============
+
+function TestimonialsCarousel({ testimonialsData, siteName }: { testimonialsData: any[]; siteName?: string }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const scrollToIndex = useCallback((index: number) => {
+    if (!scrollRef.current) return;
+    const card = scrollRef.current.querySelector<HTMLElement>(':scope > div');
+    if (!card) return;
+    const cardWidth = card.offsetWidth + 24; // gap
+    scrollRef.current.scrollTo({ left: index * cardWidth, behavior: 'smooth' });
+    setActiveIndex(index);
+  }, []);
+
+  const startAutoScroll = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      setActiveIndex(prev => {
+        const next = (prev + 1) % testimonialsData.length;
+        scrollToIndex(next);
+        return next;
+      });
+    }, 4000);
+  }, [testimonialsData.length, scrollToIndex]);
+
+  useEffect(() => {
+    startAutoScroll();
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [startAutoScroll]);
+
+  const handleManualScroll = (direction: 'left' | 'right') => {
+    const next = direction === 'left'
+      ? (activeIndex - 1 + testimonialsData.length) % testimonialsData.length
+      : (activeIndex + 1) % testimonialsData.length;
+    scrollToIndex(next);
+    startAutoScroll(); // reset timer
+  };
+
+  return (
+    <section className="section-light py-20 reveal-up">
+      <div className="container mx-auto px-4 lg:px-8">
+        <div className="flex items-end justify-between mb-12">
+          <div>
+            <p className="text-primary font-semibold mb-2">Témoignages</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Ils ont réussi avec {siteName || "Maig'Up France"}
+            </h2>
+            <p className="text-muted-foreground max-w-2xl">
+              Découvrez les retours de nos étudiants qui ont concrétisé leur rêve d'étudier en France.
+            </p>
+          </div>
+          <div className="hidden md:flex items-center gap-2">
+            <Button variant="outline" size="icon" className="rounded-full" onClick={() => handleManualScroll('left')}>
+              <ChevronLeft className="w-5 h-5" />
+            </Button>
+            <Button variant="outline" size="icon" className="rounded-full" onClick={() => handleManualScroll('right')}>
+              <ChevronRight className="w-5 h-5" />
+            </Button>
+          </div>
+        </div>
+
+        <div
+          ref={scrollRef}
+          className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {testimonialsData.map((t: { name: string; quote: string; avatar?: string; origin?: string; country?: string; university?: string; program?: string }) => (
+            <div key={t.name} className="min-w-[300px] md:min-w-[360px] snap-start bg-card border border-border rounded-xl p-6 flex-shrink-0">
+              <div className="text-gold text-3xl font-serif mb-3">"</div>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-6">{t.quote}</p>
+              <div className="flex items-center gap-2 text-gold mb-4">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <Star key={s} className="w-4 h-4 fill-current" />
+                ))}
+              </div>
+              <div className="flex items-center gap-3">
+                <img src={t.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}`} alt={t.name} className="w-10 h-10 rounded-full object-cover" />
+                <div>
+                  <p className="font-semibold text-foreground text-sm">{t.name}</p>
+                  {(t.country || t.origin) && (
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <MapPin className="w-3 h-3" />
+                      <span>{t.country || t.origin}</span>
+                    </div>
+                  )}
+                  {t.university && <p className="text-xs text-muted-foreground">{t.university}</p>}
+                  {t.program && <p className="text-xs text-primary">{t.program}</p>}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Dots indicator */}
+        <div className="flex justify-center gap-2 mt-6">
+          {testimonialsData.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => { scrollToIndex(i); startAutoScroll(); }}
+              className={`w-2.5 h-2.5 rounded-full transition-colors ${i === activeIndex ? 'bg-primary' : 'bg-border'}`}
+            />
+          ))}
+        </div>
+
+        <div className="text-center mt-8">
+          <Link to="/temoignages">
+            <Button variant="outline" className="rounded-full font-semibold px-8">
+              Voir tous les témoignages
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default Index;

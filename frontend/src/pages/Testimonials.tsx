@@ -3,8 +3,11 @@ import PageHeader from "@/components/PageHeader";
 import { Star, MapPin, Send, User, MessageSquare, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
+import { submitTestimonial } from "@/services/api";
+import { useGradientHover } from "@/hooks/useGradientHover";
+import { useSEO } from "@/hooks/useSEO";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/services/api";
@@ -68,7 +71,9 @@ const defaultTestimonials = [
 ];
 
 const Testimonials = () => {
+  useSEO({ title: "Témoignages", description: "Découvrez les témoignages d'étudiants africains ayant réussi leur projet d'études en France grâce à Maig'Up France." });
   useScrollReveal();
+  const glow = useGradientHover();
 
   const { data: remoteContent } = useQuery({
     queryKey: ['public-content'],
@@ -93,7 +98,7 @@ const Testimonials = () => {
       />
 
       {/* Stats */}
-      <section className="page-header-gradient py-8">
+      <section className={`page-header-gradient py-8 ${glow.className}`} onMouseMove={glow.onMouseMove}>
         <div className="container mx-auto px-4 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {statsList.map((stat: { value: string | number; label: string }) => (
@@ -150,23 +155,32 @@ const Testimonials = () => {
               <p className="text-muted-foreground">Partagez votre expérience avec {settings?.siteName || "Maig'Up France"} et aidez d'autres étudiants.</p>
             </div>
 
-            <form onSubmit={(e) => {
+            <form onSubmit={async (e) => {
               e.preventDefault();
-              toast.success("Merci ! Votre témoignage a été envoyé pour validation.");
-              (e.target as HTMLFormElement).reset();
+              const form = e.target as HTMLFormElement;
+              const name = (form.elements.namedItem('fullname') as HTMLInputElement).value;
+              const country = (form.elements.namedItem('country') as HTMLInputElement).value;
+              const quote = (form.elements.namedItem('message') as HTMLTextAreaElement).value;
+              try {
+                await submitTestimonial({ name, country, quote });
+                toast.success("Merci ! Votre témoignage a été envoyé pour validation.");
+                form.reset();
+              } catch {
+                toast.error("Erreur lors de l'envoi. Réessayez.");
+              }
             }} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-medium flex items-center gap-2">
                     <User className="w-4 h-4 text-primary" /> Nom complet
                   </label>
-                  <input required type="text" placeholder="Prénom Nom" className="w-full px-4 py-2 rounded-lg border border-input bg-background focus:ring-2 focus:ring-primary/20 outline-none transition-all" />
+                  <input required type="text" name="fullname" placeholder="Prénom Nom" className="w-full px-4 py-2 rounded-lg border border-input bg-background focus:ring-2 focus:ring-primary/20 outline-none transition-all" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium flex items-center gap-2">
                     <Globe className="w-4 h-4 text-primary" /> Pays d'origine
                   </label>
-                  <input required type="text" placeholder="Sénégal, Côte d'Ivoire, etc." className="w-full px-4 py-2 rounded-lg border border-input bg-background focus:ring-2 focus:ring-primary/20 outline-none transition-all" />
+                  <input required type="text" name="country" placeholder="Sénégal, Côte d'Ivoire, etc." className="w-full px-4 py-2 rounded-lg border border-input bg-background focus:ring-2 focus:ring-primary/20 outline-none transition-all" />
                 </div>
               </div>
 
@@ -174,7 +188,7 @@ const Testimonials = () => {
                 <label className="text-sm font-medium flex items-center gap-2">
                   <MessageSquare className="w-4 h-4 text-primary" /> Votre message
                 </label>
-                <textarea required rows={4} placeholder={`Comment ${settings?.siteName || "Maig'Up France"} vous a-t-il aidé ?`} className="w-full px-4 py-2 rounded-lg border border-input bg-background focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"></textarea>
+                <textarea required name="message" rows={4} placeholder={`Comment ${settings?.siteName || "Maig'Up France"} vous a-t-il aidé ?`} className="w-full px-4 py-2 rounded-lg border border-input bg-background focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"></textarea>
               </div>
 
               <div className="flex justify-center">
@@ -188,7 +202,7 @@ const Testimonials = () => {
       </section>
 
       {/* CTA */}
-      <section className="hero-gradient py-20 reveal">
+      <section className={`hero-gradient py-20 reveal ${glow.className}`} onMouseMove={glow.onMouseMove}>
         <div className="container mx-auto px-4 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-hero-foreground mb-4">Écrivez votre propre succès</h2>
           <p className="text-hero-muted mb-8 max-w-xl mx-auto">
