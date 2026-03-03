@@ -429,18 +429,18 @@ function TestimonialsCarousel({ testimonialsData, siteName }: TestimonialsCarous
           className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         >
           {testimonialsData.map((t) => (
-            <div key={t.name} className="min-w-[300px] md:min-w-[360px] snap-start bg-card border border-border rounded-xl p-6 flex-shrink-0">
-              <div className="text-gold text-3xl font-serif mb-3">"</div>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-6">{t.quote}</p>
-              <div className="flex items-center gap-2 text-gold mb-4">
+            <div key={t.name} className="min-w-[280px] md:min-w-[320px] snap-start bg-card border border-border rounded-xl p-5 flex-shrink-0 shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group cursor-pointer">
+              <div className="text-gold text-3xl font-serif mb-1 group-hover:scale-110 transition-transform origin-left">"</div>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">{t.quote}</p>
+              <div className="flex items-center gap-1.5 text-gold mb-4">
                 {[1, 2, 3, 4, 5].map((s) => (
-                  <Star key={s} className="w-4 h-4 fill-current" />
+                  <Star key={s} className="w-3.5 h-3.5 fill-current" />
                 ))}
               </div>
-              <div className="flex items-center gap-3">
-                <img src={t.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}`} alt={t.name} className="w-10 h-10 rounded-full object-cover" />
+              <div className="flex items-center gap-3 border-t border-border pt-3">
+                <img src={t.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}`} alt={t.name} className="w-8 h-8 rounded-full object-cover shadow-sm group-hover:ring-2 ring-primary/20 transition-all" />
                 <div>
-                  <p className="font-semibold text-foreground text-sm">{t.name}</p>
+                  <p className="font-semibold text-foreground text-sm leading-tight">{t.name}</p>
                   {(t.country || t.origin) && (
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <MapPin className="w-3 h-3" />
