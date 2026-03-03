@@ -18,7 +18,7 @@ const Footer = () => {
   return (
     <footer className="hero-gradient text-hero-foreground" role="contentinfo" aria-label="Pied de page">
       <div className="container mx-auto px-4 lg:px-8 py-10 lg:py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
@@ -56,32 +56,13 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Services */}
-          <div>
-            <h4 className="font-semibold mb-4">Services</h4>
-            <div className="space-y-2 text-sm text-hero-muted">
-              {servicesData.length > 0 ? (
-                servicesData.slice(0, 4).map((service: { title: string }) => (
-                  <p key={service.title}>{service.title}</p>
-                ))
-              ) : (
-                <>
-                  <p>Dossier Campus France</p>
-                  <p>Choix des universités</p>
-                  <p>Lettres de motivation</p>
-                  <p>Simulation d'entretien</p>
-                </>
-              )}
-            </div>
-          </div>
-
           {/* Contact */}
           <div>
             <h4 className="font-semibold mb-4">Contact</h4>
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-sm text-hero-muted">
                 <Mail className="w-4 h-4 text-primary" />
-                <span>{settings?.email || "contact@maigup-france.com"}</span>
+                <span>{settings?.email || "maiupfrance@gmail.com"}</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-hero-muted">
                 <Phone className="w-4 h-4 text-primary" />
