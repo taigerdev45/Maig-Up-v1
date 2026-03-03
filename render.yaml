@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: maigup-backend
+    runtime: node
+    region: frankfurt
+    plan: free
+    buildCommand: "cd backend && npm install && npm run build"
+    startCommand: "cd backend && npm start"
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: NODE_ENV
+        value: production
+      - key: ALLOWED_ORIGINS
+        value: "*"
+        sync: false
+        # Add your Firebase service account JSON properties here manually in Render dashboard

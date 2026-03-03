@@ -10,6 +10,51 @@ import { iconMap } from "@/lib/icons";
 import { useGradientHover } from "@/hooks/useGradientHover";
 import { useSEO } from "@/hooks/useSEO";
 
+interface HeroData {
+  titleLine1: string;
+  titleLine2: string;
+  titleLine3: string;
+  description: string;
+  badges: string[];
+}
+
+interface StatItem {
+  icon?: string | React.ElementType;
+  value: string | number;
+  label: string;
+}
+
+interface ServiceItem {
+  icon?: string | React.ElementType;
+  title: string;
+  description: string;
+}
+
+interface TestimonialItem {
+  name: string;
+  quote: string;
+  avatar?: string;
+  origin?: string;
+  country?: string;
+  university?: string;
+  program?: string;
+}
+
+interface WhyUsItem {
+  icon?: string | React.ElementType;
+  title: string;
+  description: string;
+}
+
+interface RemoteContent {
+  hero?: HeroData;
+  stats?: { items: StatItem[] };
+  services?: { items: ServiceItem[] };
+  testimonials?: { items: TestimonialItem[] };
+  whyUs?: { items: WhyUsItem[] };
+  settings?: { phone?: string; whatsappMessage?: string; siteName?: string };
+}
+
 const Index = () => {
   useSEO({ title: "Accueil", description: "Maig'Up France accompagne les étudiants africains dans leur projet d'études en France : Campus France, universités, lettres de motivation et visa." });
   useScrollReveal();
@@ -46,9 +91,9 @@ const Index = () => {
     );
   }
 
-  const { hero, stats, services, testimonials, whyUs, settings } = remoteContent || {};
+  const { hero, stats, services, testimonials, whyUs, settings } = (remoteContent || {}) as RemoteContent;
 
-  const heroData = hero || {
+  const heroData: HeroData = hero || {
     titleLine1: "Réussissez vos",
     titleLine2: "études en France",
     titleLine3: "avec Maig'Up",
@@ -56,10 +101,10 @@ const Index = () => {
     badges: ["Accompagnement personnalisé", "Experts Campus France", "Suivi jusqu'à l'obtention du visa"]
   };
 
-  const statsData = stats?.items || [];
-  const servicesData = services?.items || [];
-  const testimonialsData = testimonials?.items || [];
-  const whyUsData = whyUs?.items || [];
+  const statsData: StatItem[] = stats?.items || [];
+  const servicesData: ServiceItem[] = services?.items || [];
+  const testimonialsData: TestimonialItem[] = testimonials?.items || [];
+  const whyUsData: WhyUsItem[] = whyUs?.items || [];
 
   const whatsappUrl = `https://wa.me/${(settings?.phone || "33123456789").replace(/\D/g, '')}?text=${encodeURIComponent(settings?.whatsappMessage || "Bonjour, je souhaite des informations sur vos services.")}`;
 
@@ -80,7 +125,7 @@ const Index = () => {
                 <br />
                 <span className="text-primary">{heroData.titleLine2}</span>
                 <br />
-                {heroData.titleLine3.split(' ').map((word: string, i: number, arr: string[]) =>
+                {heroData.titleLine3.split(' ').map((word, i, arr) =>
                   i === arr.length - 1 ? <span key={i} className="text-gold"> {word}</span> : word + " "
                 )}
               </h1>
@@ -90,7 +135,7 @@ const Index = () => {
               </p>
 
               <div className="space-y-3 mb-8">
-                {heroData.badges?.map((item: string) => (
+                {heroData.badges?.map((item) => (
                   <div key={item} className="flex items-center gap-2 text-hero-muted">
                     <CheckCircle2 className="w-5 h-5 text-primary" />
                     <span>{item}</span>
@@ -113,7 +158,7 @@ const Index = () => {
             </div>
 
             <div className="space-y-4 animate-slide-up">
-              {statsData.map((stat: { icon?: string | React.ElementType; value: string | number; label: string }) => {
+              {statsData.map((stat) => {
                 const Icon = typeof stat.icon === 'string' ? iconMap[stat.icon] || Star : stat.icon;
                 return (
                   <div key={stat.label} className="stat-card rounded-xl p-5 flex items-center gap-4">
@@ -175,7 +220,7 @@ const Index = () => {
                 </p>
 
                 <div className="grid sm:grid-cols-2 gap-4">
-                  {whyUsData.map((item: { icon?: string | React.ElementType; title: string; description: string }) => {
+                  {whyUsData.map((item) => {
                     const Icon = typeof item.icon === 'string' ? iconMap[item.icon] || Star : item.icon;
                     return (
                       <div key={item.title} className="flex items-start gap-3">
@@ -246,7 +291,11 @@ const Index = () => {
 
 // ============ Services Carousel (manual) ============
 
-function ServicesCarousel({ servicesData }: { servicesData: any[] }) {
+interface ServicesCarouselProps {
+  servicesData: ServiceItem[];
+}
+
+function ServicesCarousel({ servicesData }: ServicesCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: 'left' | 'right') => {
@@ -284,10 +333,9 @@ function ServicesCarousel({ servicesData }: { servicesData: any[] }) {
 
         <div
           ref={scrollRef}
-          className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         >
-          {servicesData.map((service: { icon?: string | React.ElementType; title: string; description: string }) => {
+          {servicesData.map((service) => {
             const Icon = typeof service.icon === 'string' ? iconMap[service.icon] || FileText : service.icon;
             return (
               <div
@@ -318,7 +366,12 @@ function ServicesCarousel({ servicesData }: { servicesData: any[] }) {
 
 // ============ Testimonials Auto-Carousel ============
 
-function TestimonialsCarousel({ testimonialsData, siteName }: { testimonialsData: any[]; siteName?: string }) {
+interface TestimonialsCarouselProps {
+  testimonialsData: TestimonialItem[];
+  siteName?: string;
+}
+
+function TestimonialsCarousel({ testimonialsData, siteName }: TestimonialsCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -381,10 +434,9 @@ function TestimonialsCarousel({ testimonialsData, siteName }: { testimonialsData
 
         <div
           ref={scrollRef}
-          className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         >
-          {testimonialsData.map((t: { name: string; quote: string; avatar?: string; origin?: string; country?: string; university?: string; program?: string }) => (
+          {testimonialsData.map((t) => (
             <div key={t.name} className="min-w-[300px] md:min-w-[360px] snap-start bg-card border border-border rounded-xl p-6 flex-shrink-0">
               <div className="text-gold text-3xl font-serif mb-3">"</div>
               <p className="text-sm text-muted-foreground leading-relaxed mb-6">{t.quote}</p>
@@ -418,6 +470,7 @@ function TestimonialsCarousel({ testimonialsData, siteName }: { testimonialsData
               key={i}
               onClick={() => { scrollToIndex(i); startAutoScroll(); }}
               className={`w-2.5 h-2.5 rounded-full transition-colors ${i === activeIndex ? 'bg-primary' : 'bg-border'}`}
+              aria-label={`Aller au témoignage ${i + 1}`}
             />
           ))}
         </div>
