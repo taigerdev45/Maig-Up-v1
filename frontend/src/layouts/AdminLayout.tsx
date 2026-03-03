@@ -73,41 +73,48 @@ const AdminLayout = () => {
                     </Button>
                 </div>
 
-                <nav className="mt-6 px-4 space-y-2 flex-1 overflow-y-auto">
-                    {menuItems.map((item) => (
-                        <Link
-                            key={item.path}
-                            to={item.path}
-                            className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${location.pathname === item.path
-                                ? "bg-primary text-primary-foreground"
-                                : "text-gray-400 hover:bg-white/5 hover:text-white"
+                <nav className="mt-8 px-4 space-y-3 flex-1 overflow-y-auto">
+                    {menuItems.map((item) => {
+                        const isActive = location.pathname === item.path;
+                        return (
+                            <Link
+                                key={item.path}
+                                to={item.path}
+                                className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group relative ${
+                                    isActive
+                                        ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                                        : "text-slate-400 hover:bg-slate-800/50 hover:text-white"
                                 }`}
-                        >
-                            <item.icon className="w-5 h-5 flex-shrink-0" />
-                            <span className={`font-medium ${!isSidebarOpen && "hidden"}`}>
-                                {item.label}
-                            </span>
-                        </Link>
-                    ))}
+                            >
+                                {isActive && (
+                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-white rounded-r-md shadow-sm" />
+                                )}
+                                <item.icon className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                                <span className={`font-medium tracking-wide ${!isSidebarOpen && "hidden"}`}>
+                                    {item.label}
+                                </span>
+                            </Link>
+                        );
+                    })}
                 </nav>
 
-                <div className="p-4 border-t border-white/5 shrink-0 space-y-2">
-                    <a href="/" target="_blank" rel="noopener noreferrer">
+                <div className="p-4 border-t border-slate-800 shrink-0 space-y-3">
+                    <a href="/" target="_blank" rel="noopener noreferrer" className="block">
                         <Button
                             variant="ghost"
-                            className={`w-full flex items-center gap-3 px-3 py-3 text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300 ${!isSidebarOpen && "justify-center"
+                            className={`w-full flex items-center gap-3 px-4 py-6 rounded-xl text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300 transition-all ${!isSidebarOpen && "justify-center"
                                 }`}
                         >
                             <Home className="w-5 h-5 flex-shrink-0" />
                             <span className={`font-medium ${!isSidebarOpen && "hidden"}`}>
                                 Voir le site
                             </span>
-                            <ExternalLink className={`w-3 h-3 ml-auto ${!isSidebarOpen && "hidden"}`} />
+                            <ExternalLink className={`w-4 h-4 ml-auto opacity-70 ${!isSidebarOpen && "hidden"}`} />
                         </Button>
                     </a>
                     <Button
                         variant="ghost"
-                        className={`w-full flex items-center gap-3 px-3 py-3 text-red-400 hover:bg-red-500/10 hover:text-red-300 ${!isSidebarOpen && "justify-center"
+                        className={`w-full flex items-center gap-3 px-4 py-6 rounded-xl text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-all ${!isSidebarOpen && "justify-center"
                             }`}
                         onClick={handleLogout}
                     >

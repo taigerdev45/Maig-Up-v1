@@ -27,6 +27,18 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getPendingTestimonials, updateTestimonialStatus, deleteTestimonialSubmission } from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
 
+interface TestimonialItem {
+    id: string;
+    name?: string;
+    origin?: string;
+    country?: string;
+    quote?: string;
+    message?: string;
+    avatar?: string;
+    status?: string;
+    date?: string;
+}
+
 const AdminTestimonials = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const { toast } = useToast();
@@ -45,11 +57,12 @@ const AdminTestimonials = () => {
             queryClient.invalidateQueries({ queryKey: ['pending-testimonials'] });
             toast({ title: "Succès", description: "Le statut du témoignage a été mis à jour." });
         },
-        onError: (error: any) => {
+        onError: (error: Error | { response?: { data?: { error?: string } } }) => {
+            const err = error as { response?: { data?: { error?: string } } };
             toast({ 
                 variant: "destructive", 
                 title: "Erreur", 
-                description: error.response?.data?.error || "Échec de la mise à jour." 
+                description: err.response?.data?.error || "Échec de la mise à jour." 
             });
         }
     });
@@ -62,7 +75,7 @@ const AdminTestimonials = () => {
             queryClient.invalidateQueries({ queryKey: ['pending-testimonials'] });
             toast({ title: "Succès", description: "La soumission a été supprimée." });
         },
-        onError: (error: any) => {
+        onError: () => {
             toast({ variant: "destructive", title: "Erreur", description: "Échec de la suppression." });
         }
     });
@@ -79,7 +92,7 @@ const AdminTestimonials = () => {
         }
     };
 
-    const filtered = testimonials.filter((t: any) =>
+    const filtered = testimonials.filter((t: TestimonialItem) =>
         t.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         t.country?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         t.origin?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -124,7 +137,7 @@ const AdminTestimonials = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filtered.map((t: any, index: number) => (
+                {filtered.map((t: TestimonialItem, index: number) => (
                     <Card key={index} className="border-border/50 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
                         <div className={`absolute top-0 left-0 w-1 h-full ${t.status === 'Publié' ? 'bg-green-500' : t.status === 'En attente' ? 'bg-yellow-500' : 'bg-red-500'
                             }`} />
