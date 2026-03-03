@@ -51,12 +51,20 @@ const AdminLayout = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 flex overflow-hidden">
             {/* Sidebar */}
+            {/* Overlay sur mobile quand la sidebar est ouverte */}
+            {isSidebarOpen && (
+                <div 
+                    className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
             <aside
-                className={`admin-gradient border-r border-white/10 transition-all duration-300 z-50 ${isSidebarOpen ? "w-64" : "w-20"
-                    } fixed top-0 left-0 h-screen flex flex-col`}
+                className={`bg-blue-700 border-r border-white/10 transition-transform duration-300 z-50 fixed top-0 left-0 h-screen flex flex-col w-64 ${
+                    isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0 lg:w-20"
+                }`}
             >
                 <div className="p-6 flex items-center justify-between shrink-0">
-                    <Link to="/" className={`flex items-center gap-2 ${!isSidebarOpen && "hidden lg:flex"}`}>
+                    <Link to="/" className={`flex items-center gap-2 ${!isSidebarOpen && "lg:hidden"}`}>
                         <img
                             src="/Assets/logo_maigup-removebg-preview.png"
                             alt="Logo"
@@ -131,17 +139,17 @@ const AdminLayout = () => {
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-w-0">
-                <header className="h-16 bg-card border-b border-border flex items-center justify-between px-6 sticky top-0 z-40">
+                <header className="h-16 bg-card border-b border-border flex items-center justify-between px-6 sticky top-0 z-30">
                     <div className="flex items-center gap-4">
                         <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className="hidden lg:flex"
+                            className="flex"
                         >
                             <Menu className="w-5 h-5" />
                         </Button>
-                        <h1 className="text-lg font-bold text-foreground">
+                        <h1 className="text-lg font-bold text-foreground truncate max-w-[200px] sm:max-w-none">
                             {menuItems.find(item => item.path === location.pathname)?.label || "Administration"}
                         </h1>
                     </div>
