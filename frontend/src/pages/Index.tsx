@@ -81,15 +81,7 @@ const Index = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="min-h-screen flex items-center justify-center pt-32 pb-20">
-          <p className="text-muted-foreground animate-pulse text-lg">Chargement de la page d'accueil...</p>
-        </div>
-      </Layout>
-    );
-  }
+  // Suppression du block isLoading bloquant pour permettre l'affichage immédiat des fallbacks (Skeleton optimiste)
 
   const { hero, stats, services, testimonials, whyUs, settings } = (remoteContent || {}) as RemoteContent;
 
@@ -111,7 +103,7 @@ const Index = () => {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className={`hero-gradient pt-32 pb-20 lg:pb-28 relative overflow-hidden ${glow.className}`} onMouseMove={glow.onMouseMove}>
+      <section className={`hero-gradient pt-24 pb-16 lg:pt-32 lg:pb-28 relative overflow-hidden ${glow.className}`} onMouseMove={glow.onMouseMove}>
         <div className="container mx-auto px-4 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="animate-fade-in">
@@ -120,7 +112,7 @@ const Index = () => {
                 Expert Campus France depuis 2025
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-hero-foreground leading-tight mb-6">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-hero-foreground leading-tight mb-4 sm:mb-6">
                 {heroData.titleLine1}
                 <br />
                 <span className="text-primary">{heroData.titleLine2}</span>
@@ -134,10 +126,10 @@ const Index = () => {
                 {heroData.description}
               </p>
 
-              <div className="space-y-3 mb-8">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4 mb-8">
                 {heroData.badges?.map((item) => (
-                  <div key={item} className="flex items-center gap-2 text-hero-muted">
-                    <CheckCircle2 className="w-5 h-5 text-primary" />
+                  <div key={item} className="flex items-center gap-2 text-hero-muted text-sm sm:text-base">
+                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
                     <span>{item}</span>
                   </div>
                 ))}
@@ -157,17 +149,17 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="space-y-4 animate-slide-up">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-1 lg:gap-4 animate-slide-up mt-8 lg:mt-0">
               {statsData.map((stat) => {
                 const Icon = typeof stat.icon === 'string' ? iconMap[stat.icon] || Star : stat.icon;
                 return (
-                  <div key={stat.label} className="stat-card rounded-xl p-5 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-                      {Icon && <Icon className="w-6 h-6 text-primary" />}
+                  <div key={stat.label} className="stat-card rounded-xl p-3 sm:p-5 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-2 sm:gap-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+                      {Icon && <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-hero-foreground">{stat.value}</p>
-                      <p className="text-sm text-hero-muted">{stat.label}</p>
+                      <p className="text-xl sm:text-2xl font-bold text-hero-foreground">{stat.value}</p>
+                      <p className="text-xs sm:text-sm text-hero-muted">{stat.label}</p>
                     </div>
                   </div>
                 );
@@ -250,7 +242,7 @@ const Index = () => {
       )}
 
       {/* CTA Section */}
-      <section className={`hero-gradient py-20 reveal ${glow.className}`} onMouseMove={glow.onMouseMove}>
+      <section className={`hero-gradient py-12 lg:py-20 reveal ${glow.className}`} onMouseMove={glow.onMouseMove}>
         <div className="container mx-auto px-4 lg:px-8 text-center">
           <p className="text-primary font-semibold mb-2">Prêt à démarrer ?</p>
           <h2 className="text-3xl md:text-4xl font-bold text-hero-foreground mb-4">

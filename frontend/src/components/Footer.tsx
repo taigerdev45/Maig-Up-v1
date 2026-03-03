@@ -17,8 +17,8 @@ const Footer = () => {
 
   return (
     <footer className="hero-gradient text-hero-foreground" role="contentinfo" aria-label="Pied de page">
-      <div className="container mx-auto px-4 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+      <div className="container mx-auto px-4 lg:px-8 py-10 lg:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
@@ -95,7 +95,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-hero-lighter/30 mt-12 pt-8 text-center text-sm text-hero-muted">
+        <div className="border-t border-hero-lighter/30 mt-8 lg:mt-12 pt-6 lg:pt-8 text-center text-sm text-hero-muted">
           <p>© {new Date().getFullYear()} {settings?.siteName || "Maig'Up France"}. Tous droits réservés.</p>
         </div>
       </div>
