@@ -104,6 +104,21 @@ export const submitTestimonial = async (testimonialData: {
   return data;
 };
 
+export const getPendingTestimonials = async () => {
+  const { data } = await api.get('/testimonials');
+  return data;
+};
+
+export const updateTestimonialStatus = async (id: string, status: string) => {
+  const { data } = await api.put(`/testimonials/${id}/status`, { status });
+  return data;
+};
+
+export const deleteTestimonialSubmission = async (id: string) => {
+  const { data } = await api.delete(`/testimonials/${id}`);
+  return data;
+};
+
 // === Visits ===
 
 export const recordVisit = async (page: string) => {

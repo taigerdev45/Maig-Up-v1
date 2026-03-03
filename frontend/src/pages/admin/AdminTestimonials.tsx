@@ -24,7 +24,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "@/services/api";
+import { getPendingTestimonials, updateTestimonialStatus, deleteTestimonialSubmission } from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
 
 const AdminTestimonials = () => {
@@ -32,21 +32,18 @@ const AdminTestimonials = () => {
     const { toast } = useToast();
     const queryClient = useQueryClient();
 
-    const { data: content, isLoading } = useQuery({
-        queryKey: ['admin-content'],
-        queryFn: async () => {
-            const { data } = await api.get('/content');
-            return data;
-        }
+    const { data: testimonialsData, isLoading } = useQuery({
+        queryKey: ['pending-testimonials'],
+        queryFn: getPendingTestimonials
     });
 
-    const updateContentMutation = useMutation({
-        mutationFn: async (newTestimonials: any[]) => {
-            return api.put('/content/testimonials', { items: newTestimonials });
+    const updateStatusMutation = useMutation({
+        mutationFn: async ({ id, status }: { id: string, status: string }) => {
+            return updateTestimonialStatus(id, status);
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['admin-content'] });
-            toast({ title: "Succès", description: "Les témoignages ont été mis à jour." });
+            queryClient.invalidateQueries({ queryKey: ['pending-testimonials'] });
+            toast({ title: "Succès", description: "Le statut du témoignage a été mis à jour." });
         },
         onError: (error: any) => {
             toast({ 
@@ -57,24 +54,34 @@ const AdminTestimonials = () => {
         }
     });
 
-    const testimonials = content?.testimonials?.items || [];
+    const deleteMutation = useMutation({
+        mutationFn: async (id: string) => {
+            return deleteTestimonialSubmission(id);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['pending-testimonials'] });
+            toast({ title: "Succès", description: "La soumission a été supprimée." });
+        },
+        onError: (error: any) => {
+            toast({ variant: "destructive", title: "Erreur", description: "Échec de la suppression." });
+        }
+    });
 
-    const handleUpdateStatus = (testimonialName: string, newStatus: string) => {
-        const newTestimonials = testimonials.map((t: any) => 
-            t.name === testimonialName ? { ...t, status: newStatus } : t
-        );
-        updateContentMutation.mutate(newTestimonials);
+    const testimonials = Array.isArray(testimonialsData) ? testimonialsData : [];
+
+    const handleUpdateStatus = (id: string, newStatus: string) => {
+        updateStatusMutation.mutate({ id, status: newStatus });
     };
 
-    const handleDelete = (testimonialName: string) => {
-        if (window.confirm("Voulez-vous vraiment supprimer ce témoignage ?")) {
-            const newTestimonials = testimonials.filter((t: any) => t.name !== testimonialName);
-            updateContentMutation.mutate(newTestimonials);
+    const handleDelete = (id: string) => {
+        if (window.confirm("Voulez-vous vraiment supprimer définitivement cette soumission ?")) {
+            deleteMutation.mutate(id);
         }
     };
 
     const filtered = testimonials.filter((t: any) =>
-        t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        t.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        t.country?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         t.origin?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -160,14 +167,14 @@ const AdminTestimonials = () => {
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                    <DropdownMenuItem onClick={() => handleUpdateStatus(t.name, "Publié")} className="gap-2">
+                                    <DropdownMenuItem onClick={() => handleUpdateStatus(t.id, "Publié")} className="gap-2">
                                         <CheckCircle2 className="w-4 h-4 text-green-500" /> Publier
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => handleUpdateStatus(t.name, "Rejeté")} className="gap-2">
+                                    <DropdownMenuItem onClick={() => handleUpdateStatus(t.id, "Rejeté")} className="gap-2">
                                         <XCircle className="w-4 h-4 text-destructive" /> Rejeter
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem onClick={() => handleDelete(t.name)} className="gap-2 text-destructive">
+                                    <DropdownMenuItem onClick={() => handleDelete(t.id)} className="gap-2 text-destructive">
                                         <Trash2 className="w-4 h-4" /> Supprimer
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
