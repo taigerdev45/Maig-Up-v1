@@ -11,6 +11,10 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { getDashboardStats, getVisitStats, getEvolutionData, type VisitStats, type EvolutionData } from "@/services/api";
 import type { DashboardStats } from "@/types";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { useToast } from "@/hooks/use-toast";
+import { Download } from "lucide-react";
 
 const COLORS = ['#D4AF37', '#1A1F2C', '#3b82f6', '#ef4444'];
 const PAGE_COLORS: Record<string, string> = {
@@ -39,6 +43,7 @@ const evolutionPeriodOptions = [
 const AdminDashboard = () => {
     const [visitPeriod, setVisitPeriod] = useState('7d');
     const [evoPeriod, setEvoPeriod] = useState('30d');
+    const { toast } = useToast();
 
     const { data: dashboardData, isLoading: loadingStats } = useQuery<DashboardStats>({
         queryKey: ['admin-dashboard'],
@@ -77,8 +82,97 @@ const AdminDashboard = () => {
         return `${d.getDate()}/${d.getMonth() + 1}`;
     };
 
+    const handleExportPDF = async () => {
+        try {
+            const doc = new jsPDF();
+            
+            // Helper function to load image
+            const loadImage = (url: string): Promise<HTMLImageElement> => {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.crossOrigin = "Anonymous";
+                    img.src = url;
+                    img.onload = () => resolve(img);
+                    img.onerror = (e) => reject(e);
+                });
+            };
+
+            try {
+                const logo = await loadImage('/Assets/logo_maigup-removebg-preview.png');
+                
+                // Filigrane au centre
+                const PDFGState = (doc as unknown as { GState: new (options: { opacity: number }) => unknown }).GState;
+                doc.setGState(new PDFGState({ opacity: 0.08 }));
+                // A4 is 210x297mm. image width ~100x40. Center it.
+                doc.addImage(logo, 'PNG', 55, 128, 100, 40);
+                
+                // En-tête (Logo full opacity)
+                doc.setGState(new PDFGState({ opacity: 1 }));
+                doc.addImage(logo, 'PNG', 14, 10, 40, 16);
+            } catch (e) {
+                // Continuer si l'image ne charge pas
+                const PDFGState = (doc as unknown as { GState: new (options: { opacity: number }) => unknown }).GState;
+                doc.setGState(new PDFGState({ opacity: 1 }));
+                console.warn("Impossible de charger le logo pour le PDF", e);
+            }
+
+            doc.setFontSize(22);
+            doc.setTextColor(20, 30, 50);
+            doc.text("Rapport d'Activité Global", 14, 40);
+            
+            doc.setFontSize(11);
+            doc.setTextColor(100);
+            doc.text(`Généré le : ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`, 14, 48);
+
+            if (dashboardData) {
+                autoTable(doc, {
+                    startY: 60,
+                    head: [['Résumé Global', 'Total']],
+                    body: [
+                        ['Total Demandes / Inscriptions', dashboardData.totalRegistrations],
+                        ['Total Contacts', dashboardData.totalContacts],
+                        ['Total Témoignages', dashboardData.totalTestimonials],
+                    ],
+                    theme: 'striped',
+                    headStyles: { fillColor: [41, 128, 185] }
+                });
+
+                const docWithAutoTable = doc as jsPDF & { lastAutoTable?: { finalY: number } };
+                const finalY = docWithAutoTable.lastAutoTable?.finalY ?? 60;
+
+                const statusBody = Object.entries(dashboardData.registrationsByStatus).map(([status, count]) => [status, count]);
+                if (statusBody.length > 0) {
+                    autoTable(doc, {
+                        startY: finalY + 15,
+                        head: [['Statut des Demandes', 'Volume']],
+                        body: statusBody,
+                        theme: 'grid',
+                        headStyles: { fillColor: [243, 156, 18] }
+                    });
+                }
+            }
+
+            doc.save(`Rapport_MaigUp_${new Date().toISOString().split('T')[0]}.pdf`);
+            toast({ title: "PDF généré", description: "Le rapport a été téléchargé avec succès." });
+        } catch (error) {
+            console.error(error);
+            toast({ variant: "destructive", title: "Erreur", description: "Impossible de générer le rapport PDF." });
+        }
+    };
+
     return (
         <div className="space-y-6 reveal-up reveal-visible">
+            <div className="flex justify-between items-center bg-card p-4 rounded-xl border border-border/50 shadow-sm">
+                <div>
+                    <h2 className="text-xl font-bold">Vue d'ensemble</h2>
+                    <p className="text-sm text-muted-foreground">Statistiques et données de votre plateforme</p>
+                </div>
+                <Button onClick={handleExportPDF} className="gap-2 bg-primary hover:bg-cyan-dark text-white">
+                    <Download className="w-4 h-4" />
+                    <span className="hidden sm:inline">Exporter Rapport PDF</span>
+                </Button>
+            </div>
+
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {stats.map((stat) => (
