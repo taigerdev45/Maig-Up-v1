@@ -332,13 +332,16 @@ function ServicesCarousel({ servicesData }: ServicesCarouselProps) {
             return (
               <div
                 key={service.title}
-                className="min-w-[280px] md:min-w-[320px] snap-start bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-shadow group flex-shrink-0"
+                className="w-[280px] md:w-[320px] snap-start bg-blue-50/50 border border-blue-100 rounded-xl p-6 hover:shadow-lg transition-shadow group flex-shrink-0 flex flex-col h-[220px]"
               >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center mb-4 shadow-sm group-hover:bg-primary/10 transition-colors shrink-0">
                   {Icon && <Icon className="w-6 h-6 text-primary" />}
                 </div>
-                <h3 className="font-bold text-foreground mb-2">{service.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{service.description}</p>
+                <h3 className="font-bold text-foreground mb-2 truncate shrink-0">{service.title}</h3>
+                <div className="flex-1 overflow-hidden relative">
+                  <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">{service.description}</p>
+                  <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-blue-50/50 to-transparent" />
+                </div>
               </div>
             );
           })}
