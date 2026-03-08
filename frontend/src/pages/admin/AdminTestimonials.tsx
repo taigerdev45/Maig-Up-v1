@@ -136,41 +136,41 @@ const AdminTestimonials = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
                 {filtered.map((t: TestimonialItem, index: number) => (
-                    <Card key={index} className="border-border/50 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                    <Card key={index} className="border-border/50 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group flex flex-col h-full">
                         <div className={`absolute top-0 left-0 w-1 h-full ${t.status === 'Publié' ? 'bg-green-500' : t.status === 'En attente' ? 'bg-yellow-500' : 'bg-red-500'
                             }`} />
                         <CardHeader className="pb-2">
-                            <div className="flex justify-between items-start">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                            <div className="flex justify-between items-start gap-4">
+                                <div className="flex items-center gap-3 min-w-0 flex-1">
+                                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden shrink-0">
                                         {t.avatar ? <img src={t.avatar} alt={t.name} className="w-full h-full object-cover" /> : <User className="w-5 h-5 text-primary" />}
                                     </div>
-                                    <div>
-                                        <CardTitle className="text-sm font-bold">{t.name}</CardTitle>
-                                        <p className="text-xs text-muted-foreground">{t.origin || t.country}</p>
+                                    <div className="min-w-0">
+                                        <CardTitle className="text-sm font-bold line-clamp-1 truncate">{t.name}</CardTitle>
+                                        <p className="text-xs text-muted-foreground line-clamp-1 truncate">{t.origin || t.country}</p>
                                     </div>
                                 </div>
-                                <Badge className={getStatusColor(t.status || "En attente")}>
+                                <Badge className={`shrink-0 ${getStatusColor(t.status || "En attente")}`}>
                                     {t.status || "En attente"}
                                 </Badge>
                             </div>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="flex-1">
                             <div className="flex gap-1 mb-2">
                                 {[1, 2, 3, 4, 5].map((s) => (
                                     < Star key={s} className="w-3 h-3 fill-gold text-gold" />
                                 ))}
                             </div>
-                            <div className="relative">
+                            <div className="relative h-full">
                                 <Quote className="w-8 h-8 text-primary/5 absolute -top-2 -left-2 rotate-180" />
-                                <p className="text-sm text-muted-foreground leading-relaxed italic relative z-10">
+                                <p className="text-sm text-muted-foreground leading-relaxed italic relative z-10 line-clamp-4">
                                     "{t.quote || t.message}"
                                 </p>
                             </div>
                         </CardContent>
-                        <CardFooter className="pt-2 border-t border-border/50 flex justify-between items-center text-xs text-muted-foreground">
+                        <CardFooter className="pt-4 mt-auto border-t border-border/50 flex justify-between items-center text-xs text-muted-foreground">
                             <span>{t.date || "Date non spécifiée"}</span>
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>

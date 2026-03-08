@@ -114,34 +114,38 @@ const Testimonials = () => {
       {/* Testimonials Grid */}
       <section className="section-light py-20 reveal-up">
         <div className="container mx-auto px-4 lg:px-8">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16 auto-rows-fr">
             {testimonialsList.map((t: { quote: string; name: string; avatar?: string; country?: string; origin?: string; university?: string; program?: string }) => (
-              <div key={t.name} className="bg-card border border-border rounded-xl p-6">
+              <div key={t.name} className="bg-card border border-border rounded-xl p-6 flex flex-col h-full">
                 <div className="text-gold text-3xl font-serif mb-3">"</div>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-6">{t.quote}</p>
-                <div className="flex items-center gap-2 text-gold mb-4">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star key={s} className="w-4 h-4 fill-current" />
-                  ))}
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-6 line-clamp-6">{t.quote}</p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <img src={t.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}`} alt={t.name} className="w-10 h-10 rounded-full object-cover" />
-                  <div>
-                    <p className="font-semibold text-foreground text-sm">{t.name}</p>
-                    {t.country && (
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <MapPin className="w-3 h-3" />
-                        <span>{t.country}</span>
-                      </div>
-                    )}
-                    {t.origin && !t.country && (
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <MapPin className="w-3 h-3" />
-                        <span>{t.origin}</span>
-                      </div>
-                    )}
-                    {t.university && <p className="text-xs text-muted-foreground">{t.university}</p>}
-                    {t.program && <p className="text-xs text-primary">{t.program}</p>}
+                <div className="mt-auto">
+                  <div className="flex items-center gap-2 text-gold mb-4">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star key={s} className="w-4 h-4 fill-current" />
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-3 pt-4 border-t border-border/50">
+                    <img src={t.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}`} alt={t.name} className="w-10 h-10 rounded-full object-cover shrink-0" />
+                    <div className="min-w-0">
+                      <p className="font-semibold text-foreground text-sm truncate">{t.name}</p>
+                      {t.country && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground truncate">
+                          <MapPin className="w-3 h-3 shrink-0" />
+                          <span className="truncate">{t.country}</span>
+                        </div>
+                      )}
+                      {t.origin && !t.country && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground truncate">
+                          <MapPin className="w-3 h-3 shrink-0" />
+                          <span className="truncate">{t.origin}</span>
+                        </div>
+                      )}
+                      {t.university && <p className="text-xs text-muted-foreground truncate">{t.university}</p>}
+                      {t.program && <p className="text-xs text-primary truncate">{t.program}</p>}
+                    </div>
                   </div>
                 </div>
               </div>

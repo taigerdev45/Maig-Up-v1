@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-    FileText, MessageSquare, Eye, TrendingUp, BarChart3, UserPlus
+    MessageSquare, Eye, TrendingUp, BarChart3, UserPlus
 } from "lucide-react";
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
@@ -62,11 +62,8 @@ const AdminDashboard = () => {
 
     const stats = dashboardData ? [
         { label: "Total Contacts", value: dashboardData.totalContacts.toString(), icon: MessageSquare, color: "text-blue-500", bg: "bg-blue-500/10" },
-        { label: "Demandes", value: dashboardData.totalRegistrations.toString(), icon: FileText, color: "text-orange-500", bg: "bg-orange-500/10" },
         { label: "Témoignages", value: dashboardData.totalTestimonials.toString(), icon: Eye, color: "text-green-500", bg: "bg-green-500/10" },
     ] : [];
-
-    const statusData = dashboardData ? Object.entries(dashboardData.registrationsByStatus).map(([name, value]) => ({ name, value })) : [];
 
     if (loadingStats) {
         return <div className="p-8 text-center text-muted-foreground animate-pulse">Chargement du tableau de bord...</div>;
@@ -129,27 +126,12 @@ const AdminDashboard = () => {
                     startY: 60,
                     head: [['Résumé Global', 'Total']],
                     body: [
-                        ['Total Demandes / Inscriptions', dashboardData.totalRegistrations],
                         ['Total Contacts', dashboardData.totalContacts],
                         ['Total Témoignages', dashboardData.totalTestimonials],
                     ],
                     theme: 'striped',
                     headStyles: { fillColor: [41, 128, 185] }
                 });
-
-                const docWithAutoTable = doc as jsPDF & { lastAutoTable?: { finalY: number } };
-                const finalY = docWithAutoTable.lastAutoTable?.finalY ?? 60;
-
-                const statusBody = Object.entries(dashboardData.registrationsByStatus).map(([status, count]) => [status, count]);
-                if (statusBody.length > 0) {
-                    autoTable(doc, {
-                        startY: finalY + 15,
-                        head: [['Statut des Demandes', 'Volume']],
-                        body: statusBody,
-                        theme: 'grid',
-                        headStyles: { fillColor: [243, 156, 18] }
-                    });
-                }
             }
 
             doc.save(`Rapport_MaigUp_${new Date().toISOString().split('T')[0]}.pdf`);
@@ -192,13 +174,13 @@ const AdminDashboard = () => {
                 ))}
             </div>
 
-            {/* Evolution Chart - Contacts & Registrations */}
+            {/* Evolution Chart - Contacts */}
             <Card className="border-border/50 shadow-sm">
                 <CardHeader>
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <CardTitle className="text-lg flex items-center gap-2">
                             <UserPlus className="w-5 h-5 text-primary" />
-                            Évolution Contacts & Demandes
+                            Évolution Contacts
                         </CardTitle>
                         <div className="flex gap-1">
                             {evolutionPeriodOptions.map(opt => (
@@ -229,10 +211,6 @@ const AdminDashboard = () => {
                                             <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2} />
                                             <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                                         </linearGradient>
-                                        <linearGradient id="grad-registrations" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.2} />
-                                            <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
-                                        </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
                                     <XAxis
@@ -261,15 +239,6 @@ const AdminDashboard = () => {
                                         stroke="#3b82f6"
                                         strokeWidth={2.5}
                                         dot={{ r: 3, fill: '#3b82f6' }}
-                                        activeDot={{ r: 5 }}
-                                    />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="registrations"
-                                        name="Demandes"
-                                        stroke="#f59e0b"
-                                        strokeWidth={2.5}
-                                        dot={{ r: 3, fill: '#f59e0b' }}
                                         activeDot={{ r: 5 }}
                                     />
                                 </LineChart>
@@ -406,28 +375,6 @@ const AdminDashboard = () => {
                         ) : (
                             <p className="text-sm text-muted-foreground">Aucune donnée</p>
                         )}
-                    </CardContent>
-                </Card>
-
-                <Card className="border-border/50 shadow-sm">
-                    <CardHeader>
-                        <CardTitle className="text-lg flex items-center gap-2">
-                            <FileText className="w-5 h-5 text-primary" />
-                            Répartition des Demandes
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-3">
-                            {statusData.map((item, index) => (
-                                <div key={item.name} className="flex justify-between items-center">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                                        <span className="text-sm text-muted-foreground">{item.name}</span>
-                                    </div>
-                                    <span className="font-bold">{item.value}</span>
-                                </div>
-                            ))}
-                        </div>
                     </CardContent>
                 </Card>
 

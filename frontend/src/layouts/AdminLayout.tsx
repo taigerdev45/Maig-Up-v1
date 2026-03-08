@@ -8,8 +8,6 @@ import {
     LogOut,
     Menu,
     X,
-    Bell,
-    UserPlus,
     Home,
     ExternalLink
 } from "lucide-react";
@@ -42,7 +40,6 @@ const AdminLayout = () => {
     const menuItems = [
         { icon: LayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
         { icon: LayoutDashboard, label: "Accueil (Site)", path: "/admin/accueil" },
-        { icon: UserPlus, label: "Demandes", path: "/admin/registrations" },
         { icon: FileText, label: "Services", path: "/admin/services" },
         { icon: Users, label: "Témoignages", path: "/admin/testimonials" },
         { icon: Settings, label: "Paramètres", path: "/admin/settings" },
@@ -154,10 +151,6 @@ const AdminLayout = () => {
                         </h1>
                     </div>
                     <div className="flex items-center gap-4">
-                        <Button variant="ghost" size="icon" className="relative">
-                            <Bell className="w-5 h-5" />
-                            <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full" />
-                        </Button>
                         <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border border-primary/40">
                             <span className="text-xs font-bold text-primary">AD</span>
                         </div>

@@ -3,6 +3,7 @@ import { db } from '../config/firebase-admin';
 import { checkAdmin } from '../middleware/auth';
 import { validate } from '../middleware/validate';
 import { contactSchema, contactStatusSchema } from '../lib/validators';
+import { sendContactEmail } from '../lib/email';
 
 const router = Router();
 
@@ -15,8 +16,21 @@ router.post('/', validate(contactSchema), async (req, res) => {
       createdAt: new Date().toISOString(),
     };
     const docRef = await db.collection('contacts').add(contact);
+    
+    // Send email notification (fire and forget, or wait?)
+    // Waiting is safer for debugging, but slower for user.
+    // Given the user wants to "prepare environment", making it work is key.
+    // We'll await it but catch errors so form submission doesn't fail if email fails.
+    try {
+      await sendContactEmail(req.body);
+    } catch (emailError) {
+      console.error('Failed to send contact email:', emailError);
+      // We continue even if email fails, as the contact is saved in DB.
+    }
+
     res.status(201).json({ id: docRef.id, message: 'Contact submitted successfully' });
   } catch (error) {
+    console.error('Error submitting contact:', error);
     res.status(500).json({ error: 'Failed to submit contact' });
   }
 });
