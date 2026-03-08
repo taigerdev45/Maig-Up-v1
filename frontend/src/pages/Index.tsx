@@ -364,117 +364,101 @@ interface TestimonialsCarouselProps {
 }
 
 function TestimonialsCarousel({ testimonialsData, siteName }: TestimonialsCarouselProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const scrollToIndex = useCallback((index: number) => {
-    if (!scrollRef.current) return;
-    const card = scrollRef.current.querySelector<HTMLElement>(':scope > div');
-    if (!card) return;
-    const cardWidth = card.offsetWidth + 24; // gap
-    scrollRef.current.scrollTo({ left: index * cardWidth, behavior: 'smooth' });
-    setActiveIndex(index);
-  }, []);
-
-  const startAutoScroll = useCallback(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = setInterval(() => {
-      setActiveIndex(prev => {
-        const next = (prev + 1) % testimonialsData.length;
-        scrollToIndex(next);
-        return next;
-      });
-    }, 4000);
-  }, [testimonialsData.length, scrollToIndex]);
-
-  useEffect(() => {
-    startAutoScroll();
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [startAutoScroll]);
-
-  const handleManualScroll = (direction: 'left' | 'right') => {
-    const next = direction === 'left'
-      ? (activeIndex - 1 + testimonialsData.length) % testimonialsData.length
-      : (activeIndex + 1) % testimonialsData.length;
-    scrollToIndex(next);
-    startAutoScroll(); // reset timer
-  };
+  const [isPaused, setIsPaused] = useState(false);
 
   return (
-    <section className="section-light py-20 reveal-up">
-      <div className="container mx-auto px-4 lg:px-8">
-        <div className="flex items-end justify-between mb-12">
-          <div>
-            <p className="text-primary font-semibold mb-2">Témoignages</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Ils ont réussi avec {siteName || "Maig'Up France"}
-            </h2>
-            <p className="text-muted-foreground max-w-2xl">
-              Découvrez les retours de nos étudiants qui ont concrétisé leur rêve d'étudier en France.
-            </p>
-          </div>
-          <div className="hidden md:flex items-center gap-2">
-            <Button variant="outline" size="icon" className="rounded-full" onClick={() => handleManualScroll('left')}>
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-            <Button variant="outline" size="icon" className="rounded-full" onClick={() => handleManualScroll('right')}>
-              <ChevronRight className="w-5 h-5" />
-            </Button>
-          </div>
-        </div>
+    <section className="section-light py-20 reveal-up overflow-hidden">
+      <div className="container mx-auto px-4 lg:px-8 mb-10 text-center">
+        <p className="text-primary font-semibold mb-2">Témoignages</p>
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          Ils ont réussi avec {siteName || "Maig'Up France"}
+        </h2>
+        <p className="text-muted-foreground max-w-2xl mx-auto">
+          Découvrez les retours de nos étudiants qui ont concrétisé leur rêve d'étudier en France.
+        </p>
+      </div>
 
-        <div
-          ref={scrollRef}
-          className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-        >
-          {testimonialsData.map((t) => (
-            <div key={t.name} className="min-w-[280px] md:min-w-[320px] snap-start bg-card border border-border rounded-xl p-5 flex-shrink-0 shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group cursor-pointer">
-              <div className="text-gold text-3xl font-serif mb-1 group-hover:scale-110 transition-transform origin-left">"</div>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-4">{t.quote}</p>
-              <div className="flex items-center gap-1.5 text-gold mb-4">
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <Star key={s} className="w-3.5 h-3.5 fill-current" />
-                ))}
+      <div 
+        className="relative w-full flex overflow-hidden mask-fade-sides"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      >
+        <div className={`flex gap-6 animate-marquee ${isPaused ? 'paused' : ''} py-4`}>
+          {[...testimonialsData, ...testimonialsData, ...testimonialsData].map((t, i) => (
+            <div 
+              key={`${t.name}-${i}`} 
+              className="w-[280px] sm:w-[320px] bg-card border border-border rounded-xl p-5 flex-shrink-0 shadow-sm hover:shadow-md transition-all flex flex-col h-[220px]"
+            >
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex items-center gap-1 text-gold">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star key={s} className="w-3 h-3 fill-current" />
+                  ))}
+                </div>
+                <div className="text-gold text-2xl font-serif leading-none">"</div>
               </div>
-              <div className="flex items-center gap-3 border-t border-border pt-3">
-                <img src={t.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}`} alt={t.name} className="w-8 h-8 rounded-full object-cover shadow-sm group-hover:ring-2 ring-primary/20 transition-all" />
-                <div>
-                  <p className="font-semibold text-foreground text-sm leading-tight">{t.name}</p>
-                  {(t.country || t.origin) && (
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <MapPin className="w-3 h-3" />
-                      <span>{t.country || t.origin}</span>
-                    </div>
-                  )}
-                  {t.university && <p className="text-xs text-muted-foreground">{t.university}</p>}
-                  {t.program && <p className="text-xs text-primary">{t.program}</p>}
+              
+              <div className="flex-1 overflow-hidden relative">
+                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4">
+                  {t.quote}
+                </p>
+                <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-card to-transparent" />
+              </div>
+
+              <div className="flex items-center gap-3 mt-4 pt-3 border-t border-border/50">
+                <img 
+                  src={t.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}`} 
+                  alt={t.name} 
+                  className="w-9 h-9 rounded-full object-cover shrink-0" 
+                />
+                <div className="min-w-0">
+                  <p className="font-semibold text-foreground text-sm truncate">{t.name}</p>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground truncate">
+                    {(t.country || t.origin) && (
+                      <div className="flex items-center gap-1 shrink-0">
+                        <MapPin className="w-3 h-3" />
+                        <span>{t.country || t.origin}</span>
+                      </div>
+                    )}
+                    {t.program && (
+                      <>
+                        <span className="w-1 h-1 rounded-full bg-border shrink-0" />
+                        <span className="truncate text-primary">{t.program}</span>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           ))}
         </div>
-
-        {/* Dots indicator */}
-        <div className="flex justify-center gap-2 mt-6">
-          {testimonialsData.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => { scrollToIndex(i); startAutoScroll(); }}
-              className={`w-2.5 h-2.5 rounded-full transition-colors ${i === activeIndex ? 'bg-primary' : 'bg-border'}`}
-              aria-label={`Aller au témoignage ${i + 1}`}
-            />
-          ))}
-        </div>
-
-        <div className="text-center mt-8">
-          <Link to="/temoignages">
-            <Button variant="outline" className="rounded-full font-semibold px-8">
-              Voir tous les témoignages
-            </Button>
-          </Link>
-        </div>
       </div>
+
+      <div className="text-center mt-8">
+        <Link to="/temoignages">
+          <Button variant="outline" className="rounded-full font-semibold px-8 hover:bg-primary hover:text-primary-foreground transition-colors">
+            Voir tous les témoignages
+          </Button>
+        </Link>
+      </div>
+
+      <style>{`
+        .mask-fade-sides {
+          mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+          -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        }
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-33.33%); }
+        }
+        .animate-marquee {
+          animation: marquee 40s linear infinite;
+          width: max-content; 
+        }
+        .paused {
+          animation-play-state: paused;
+        }
+      `}</style>
     </section>
   );
 }
